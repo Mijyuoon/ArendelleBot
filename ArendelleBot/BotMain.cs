@@ -14,10 +14,12 @@ namespace ArendelleBot {
         private IrcClient client;
         private ProgramOptions options;
         private Dictionary<string, BotCommandInfo> commands;
+        private List<BotMessageAction> msgActions;
 
         public BotCore(ProgramOptions opts) {
             options = opts;
             commands = new Dictionary<string, BotCommandInfo>();
+            msgActions = new List<BotMessageAction>();
             var addr = $"{opts.ServerAddr}:{opts.ServerPort}";
             client = new IrcClient(addr, new IrcUser(opts.Nickname, opts.Nickname));
             client.ConnectionComplete += OnConnectionComplete;
@@ -26,13 +28,20 @@ namespace ArendelleBot {
             client.UserMessageRecieved += OnUserMessageReceived;
         }
 
-        public void RegisterCommands<T>() where T : class {
+        public void RegisterModule<T>() where T : class {
             var all_mthd = typeof(T).GetMethods(BindingFlags.Static|BindingFlags.NonPublic|BindingFlags.Public);
             foreach(var mthd in all_mthd) {
-                var attr = mthd.GetCustomAttribute<BotCommandAttribute>();
-                if(attr == null) continue;
-                var dlg = Delegate.CreateDelegate(typeof(BotCommandAction), mthd) as BotCommandAction;
-                commands.Add(attr.Name, new BotCommandInfo() { Name = attr.Name, Action = dlg, Help = attr.Help });
+                var cAttr = mthd.GetCustomAttribute<BotCommandAttribute>();
+                if(cAttr != null) {
+                    var dlg = Delegate.CreateDelegate(typeof(BotCommandAction), mthd) as BotCommandAction;
+                    commands.Add(cAttr.Name, new BotCommandInfo() { Name = cAttr.Name, Action = dlg, Help = cAttr.Help });
+                }
+
+                var mAttr = mthd.GetCustomAttribute<BotActionAttribute>();
+                if(mAttr != null) {
+                    var dlg = Delegate.CreateDelegate(typeof(BotMessageAction), mthd) as BotMessageAction;
+                    msgActions.Add(dlg);
+                }
             }
         }
 
@@ -42,7 +51,7 @@ namespace ArendelleBot {
             string name = regex.Groups[1].Value,
                 data = regex.Groups[2].Value.Trim();
             if(!commands.TryGetValue(name, out cmdinfo))
-                throw new BotCommandException($"{Fmt.Colors.Red}No such command: {name}{Fmt.Reset}");
+                throw new BotCommandException($"{Fmt.Colorize(Fmt.Colors.Red)}No such command: {name}{Fmt.Reset}");
             cmdinfo.Action(new BotCommandContext(this, client, user), data);
         }
 
@@ -75,21 +84,8 @@ namespace ArendelleBot {
         }
 
         private void OnChannelMessageReceived(object sender, PrivateMessageEventArgs e) {
-            // do stuff here
-            var msg = e.PrivateMessage.Message;
-            var chan = client.Channels[e.PrivateMessage.Source];
-            { // URL Title Retrieval
-                var regex = new Regex(@"\b(https?://\S+)\b").Matches(msg); // (?:\b|['""])
-                foreach(Match match in regex) {
-                    var url = match.Groups[1].Value;
-                    Utils.GetHtmlTitleAsync(url,
-                        v => client.SendMessage($"Found URL: {Fmt.Colors.Green}{v}{Fmt.Reset}", chan.Name));
-                }
-            }
-            { // Kludge
-                var regex = new Regex(@"\brussia(?:|ns?)\b", RegexOptions.IgnoreCase).Match(msg);
-                if(regex.Success)
-                    client.SendMessage($"{Fmt.Color}4Russia!{Fmt.Reset}", chan.Name);
+            foreach(var action in msgActions) {
+                action(new BotMessageContext(this, client, e.PrivateMessage), e.PrivateMessage.Message);
             }
         }
 

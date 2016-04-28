@@ -19,7 +19,8 @@ namespace ArendelleBot {
         static void Main(string[] args) {
             var opts = ParseOptions(args);
             var bot = new BotCore(opts);
-            bot.RegisterCommands<Cmd.Commands>();
+            bot.RegisterModule<Cmd.Commands>();
+            bot.RegisterModule<Cmd.Actions>();
             bot.ConnectAsync();
             Environment.Exit(0);
         }

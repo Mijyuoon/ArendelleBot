@@ -15,24 +15,32 @@ namespace ArendelleBot {
         public const string Color = "\x03";
         public const string Reset = "\x0F";
 
-		public static class Colors {
-			public const string White = Color + "0";
-			public const string Black = Color + "1";
-			public const string Blue = Color + "2";
-			public const string Green = Color + "3";
-			public const string Red = Color + "4";
-			public const string Brown = Color + "5";
-			public const string Purple = Color + "6";
-			public const string Orange = Color + "7";
-			public const string Yellow = Color + "8";
-			public const string Lime = Color + "9";
-			public const string Teal = Color + "10";
-			public const string Cyan = Color + "11";
-			public const string GrayBlue = Color + "12";
-			public const string RedPurple = Color + "13";
-			public const string DarkGray = Color + "14";
-			public const string LightGray = Color + "15";
-		}
+        public enum Colors {
+            None = -1,
+            White,
+            Black,
+            Blue,
+            Green,
+            Red,
+            Brown,
+            Purple,
+            Orange,
+            Yellow,
+            Lime,
+            Teal,
+            Cyan,
+            LightBlue,
+            LightPurple,
+            DarkGray,
+            LightGray,
+        }
+
+        public static string Colorize(Colors fg, Colors bg = Colors.None) {
+            if(fg == Colors.None && bg == Colors.None) return "";
+            var fcol = (fg != Colors.None) ? ((int)fg).ToString() : "";
+            if(bg == Colors.None) return $"{Color}{fcol}";
+            return $"{Color}{fcol},{(int)bg}";
+        }
     }
 
     class Utils {

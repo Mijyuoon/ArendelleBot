@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using ArendelleBot;
 
@@ -35,7 +36,7 @@ namespace ArendelleBot.Cmd {
         static void SendMsg(BotCommandContext ctx, string data) {
             var args = Utils.SimpleParse(data);
             var text = string.Join(" ", args.Skip(1)).Trim();
-            var msg = $"<{Fmt.Colors.Greenish}{ctx.User.Nick}{Fmt.Reset}> {text}";
+            var msg = $"<{Fmt.Colorize(Fmt.Colors.Teal)}{ctx.User.Nick}{Fmt.Reset}> {text}";
 
             switch(args[0]) {
             case "ALL": {
@@ -57,6 +58,27 @@ namespace ArendelleBot.Cmd {
         [BotCommand("QUIT", Help = "Disconnects and shuts down the bot")]
         static void QuitBot(BotCommandContext ctx, string data) {
             ctx.Core.Disconnect(data);
+        }
+    }
+
+    partial class Actions {
+        [BotAction]
+        static void HtmlTitles(BotMessageContext ctx, string data) {
+            var chan = ctx.IRC.Channels[ctx.Msg.Source];
+            var matches = new Regex(@"\b(https?://\S+)\b").Matches(data); // (?:\b|['""])
+            foreach(Match match in matches) {
+                var url = match.Groups[1].Value;
+                Utils.GetHtmlTitleAsync(url,
+                    v => ctx.IRC.SendMessage($"Found URL: {Fmt.Colorize(Fmt.Colors.Green)}{v}{Fmt.Reset}", chan.Name));
+            }
+        }
+
+        [BotAction]
+        static void TheRussia(BotMessageContext ctx, string data) {
+            var chan = ctx.IRC.Channels[ctx.Msg.Source];
+            var regex = new Regex(@"\brussia(?:|ns?)\b", RegexOptions.IgnoreCase);
+            if(regex.Match(data).Success)
+                ctx.IRC.SendMessage($"{Fmt.Colorize(Fmt.Colors.Red)}Russia!{Fmt.Reset}", chan.Name);
         }
     }
 }
