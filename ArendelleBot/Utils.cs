@@ -26,16 +26,12 @@ namespace ArendelleBot {
 			public const string Orange = Color + "7";
 			public const string Yellow = Color + "8";
 			public const string Lime = Color + "9";
-			public const string Greenish = Color + "10";
+			public const string Teal = Color + "10";
 			public const string Cyan = Color + "11";
 			public const string GrayBlue = Color + "12";
 			public const string RedPurple = Color + "13";
 			public const string DarkGray = Color + "14";
 			public const string LightGray = Color + "15";
-
-			public static string Colored(string Clr, string Msg) {
-				return Clr + Msg + Reset;
-			}
 		}
     }
 
