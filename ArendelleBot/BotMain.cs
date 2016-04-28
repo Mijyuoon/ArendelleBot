@@ -27,7 +27,7 @@ namespace ArendelleBot {
         }
 
         public void RegisterCommands<T>() where T : class {
-			var all_mthd = typeof(T).GetMethods(BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
+            var all_mthd = typeof(T).GetMethods(BindingFlags.Static|BindingFlags.NonPublic|BindingFlags.Public);
             foreach(var mthd in all_mthd) {
                 var attr = mthd.GetCustomAttribute<BotCommandAttribute>();
                 if(attr == null) continue;
@@ -86,10 +86,11 @@ namespace ArendelleBot {
                         v => client.SendMessage($"Found URL: {Fmt.Colors.Green}{v}{Fmt.Reset}", chan.Name));
                 }
             }
-			{ // Russia!
-				if (msg.ToLower().Contains("russia"))
-					client.SendMessage($"{Fmt.Colors.Red}Russia!{Fmt.Reset}", chan.Name);
-			}
+            { // Kludge
+                var regex = new Regex(@"\brussia(?:|ns?)\b", RegexOptions.IgnoreCase).Match(msg);
+                if(regex.Success)
+                    client.SendMessage($"{Fmt.Color}4Russia!{Fmt.Reset}", chan.Name);
+            }
         }
 
         private void OnPrivateMessageReceived(object sender, PrivateMessageEventArgs e) {
