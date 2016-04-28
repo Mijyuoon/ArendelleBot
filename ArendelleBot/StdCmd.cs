@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using ArendelleBot;
 
 namespace ArendelleBot.Cmd {
-    class Commands {
+	partial class Commands { 
         [BotCommand("JOIN", Help = "Joins specified channels")]
         static void JoinChannel(BotCommandContext ctx, string data) {
             foreach(var chan in Utils.SimpleParse(data))
