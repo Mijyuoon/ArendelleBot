@@ -35,7 +35,7 @@ namespace ArendelleBot.Cmd {
         static void SendMsg(BotCommandContext ctx, string data) {
             var args = Utils.SimpleParse(data);
             var text = string.Join(" ", args.Skip(1)).Trim();
-            var msg = $"<{Fmt.Color}10{ctx.User.Nick}{Fmt.Reset}> {text}";
+            var msg = $"<{Fmt.Colors.Greenish}{ctx.User.Nick}{Fmt.Reset}> {text}";
 
             switch(args[0]) {
             case "ALL": {

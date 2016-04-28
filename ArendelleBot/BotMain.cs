@@ -42,7 +42,7 @@ namespace ArendelleBot {
             string name = regex.Groups[1].Value,
                 data = regex.Groups[2].Value.Trim();
             if(!commands.TryGetValue(name, out cmdinfo))
-                throw new BotCommandException($"{Fmt.Color}04No such command: {name}{Fmt.Reset}");
+                throw new BotCommandException($"{Fmt.Colors.Red}No such command: {name}{Fmt.Reset}");
             cmdinfo.Action(new BotCommandContext(this, client, user), data);
         }
 
@@ -83,7 +83,7 @@ namespace ArendelleBot {
                 foreach(Match match in regex) {
                     var url = match.Groups[1].Value;
                     Utils.GetHtmlTitleAsync(url,
-                        v => client.SendMessage($"Found URL: {Fmt.Color}03{v}{Fmt.Reset}", chan.Name));
+                        v => client.SendMessage($"Found URL: {Fmt.Colors.Green}{v}{Fmt.Reset}", chan.Name));
                 }
             }
 			{ // Russia!
