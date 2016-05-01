@@ -25,8 +25,14 @@ namespace ChatSharp
 
         internal void Add(IrcChannel channel)
         {
-            if (Channels.Any(c => c.Name == channel.Name))
-                throw new InvalidOperationException("That channel already exists in this collection.");
+            /*if (Channels.Any(c => c.Name == channel.Name))
+                throw new InvalidOperationException("That channel already exists in this collection.");*/
+
+            // TODO: Figure out the cause of the bug.
+            if(Channels.Any(x => x.Name == channel.Name)) {
+                Console.WriteLine("ATTN ERR({0}) = Trying to re-add channel {1}!", nameof(ChannelCollection.Add), channel.Name);
+                return;
+            }
             Channels.Add(channel);
         }
 
